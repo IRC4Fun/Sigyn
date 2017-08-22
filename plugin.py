@@ -479,17 +479,14 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
             else:
                 i.defcon = time.time()
                 self.logChannel(irc,"INFO: ignores lifted and abuses end to klines for %ss by %s" % (self.registryValue('defcon'),msg.nick))
-                # todo check current bot's umode
-                if not i.god:
-                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s +p' % irc.nick))
-                else:
-                    for channel in irc.state.channels:
-                        if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
-                            if not 'z' in irc.state.channels[channel].modes:
-                                if irc.nick in list(irc.state.channels[channel].ops):
-                                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
-                                else:
-                                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s +oqz %s $~a' % (channel,irc.nick)))
+                for channel in irc.state.channels:
+                    if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
+                        if not 'z' in irc.state.channels[channel].modes:
+                            if irc.nick in list(irc.state.channels[channel].ops):
+                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
+                            else:
+                                irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG ChanServ OP %s' % channel))
+                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz %s $~a' % (channel,irc.nick)))
         irc.replySuccess()
     defcon = wrap(defcon,['owner',optional('channel')])
 
@@ -528,15 +525,15 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
             if pattern.match(text):
                 patterns.append('#%s' % pattern.uid)
         if len(patterns):
-            irc.queueMsg(ircmsgs.privmsg(msg.nick,'%s matchs: %s' % (len(patterns),', '.join(patterns))))
+            irc.queueMsg(ircmsgs.privmsg(msg.nick,'%s matches: %s' % (len(patterns),', '.join(patterns))))
         else:
-            irc.reply('nothing matchs')  
+            irc.reply('nothing matches')  
     checkpattern = wrap(checkpattern,['owner','text'])
 
     def lspattern (self,irc,msg,args,optlist,pattern):
         """[--deep] <id|pattern>
 
-        returns patterns which matchs pattern or info about pattern #id, use --deep to search on deactivated patterns"""
+        returns patterns which matches pattern or info about pattern #id, use --deep to search on deactivated patterns"""
         i = self.getIrc(irc)
         deep = False
         for (option, arg) in optlist:
@@ -595,7 +592,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
     def togglepattern (self,irc,msg,args,uid,toggle):
         """<id> <boolean>
 
-        activate or desactivate #<id>"""
+        activate or deactivate #<id>"""
         i = self.getIrc(irc)
         result = i.toggle(self.getDb(irc.network),uid,msg.prefix,toggle)
         if result:
@@ -788,10 +785,10 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                               irc.queueMsg(ircmsgs.IrcMsg('UNKLINE %s' % ip))
                               irc.reply('Ban on %s with ip %s has been lifted' % (nick,ip))
                           else:  
-                              irc.reply('your request has been submited to freenode staffer')
+                              irc.reply('Your request has been submited to IRC4Fun staff')
                ops.append(channel)
        if len(ops) and not len(channels):
-           irc.replyError("nothing matchs %s in recent bans from %s" % (nick,','.join(ops)))
+           irc.replyError("nothing matches %s in recent bans from %s" % (nick,','.join(ops)))
 
     unkline = wrap(unkline,['private','text'])
 
@@ -1033,21 +1030,6 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                     i.opered = False
                     if len(self.registryValue('operatorNick')) and len(self.registryValue('operatorPassword')):
                         irc.queueMsg(ircmsgs.IrcMsg('OPER %s %s' % (self.registryValue('operatorNick'),self.registryValue('operatorPassword'))))
-                elif mode == '+p':
-                    i.god = True
-                    self.log.debug('%s is switching to god' % irc.nick)
-                    for channel in irc.state.channels:
-                        if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
-                            chan = self.getChan(irc,channel)
-                            if i.defcon or chan.called:
-                                if not 'z' in irc.state.channels[channel].modes:
-                                    if irc.nick in list(irc.state.channels[channel].ops):
-                                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
-                                    else:
-                                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +oqz %s $~a' % (channel,irc.nick)))                                        
-                elif mode == '-p':
-                    i.god = False
-                    self.log.debug('%s is switching to mortal' % irc.nick)    
         elif target in irc.state.channels and 'm' in irc.state.channels[target].modes:
             modes = ircutils.separateModes(msg.args[1:])
             for change in modes:
@@ -1480,8 +1462,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                     if pattern.match(raw):
                         if pattern.limit == 0:
                             isBanned = True
-                            reason = 'matchs #%s in %s' % (pattern.uid,channel)
-                            log = 'BAD: [%s] %s (matchs #%s) -> %s' % (channel,msg.prefix,pattern.uid,mask)
+                            reason = 'matches #%s in %s' % (pattern.uid,channel)
+                            log = 'BAD: [%s] %s (matches #%s) -> %s' % (channel,msg.prefix,pattern.uid,mask)
                             self.ban(irc,msg.nick,msg.prefix,mask,self.registryValue('klineDuration'),reason,self.registryValue('klineMessage'),log,killReason)
                             i.count(self.getDb(irc.network),pattern.uid)
                             self.isAbuseOnChannel(irc,channel,'pattern',mask)                                
@@ -1491,8 +1473,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                             queue.enqueue(text)
                             if len(queue) > pattern.limit:
                                 isBanned = True
-                                reason = 'matchs #%s (%s/%ss) in %s' % (pattern.uid,pattern.limit,pattern.life,channel)
-                                log = 'BAD: [%s] %s (matchs #%s %s/%ss) -> %s' % (channel,msg.prefix,pattern.uid,pattern.limit,pattern.life,mask)
+                                reason = 'matches #%s (%s/%ss) in %s' % (pattern.uid,pattern.limit,pattern.life,channel)
+                                log = 'BAD: [%s] %s (matches #%s %s/%ss) -> %s' % (channel,msg.prefix,pattern.uid,pattern.limit,pattern.life,mask)
                                 self.ban(irc,msg.nick,msg.prefix,mask,self.registryValue('klineDuration'),reason,self.registryValue('klineMessage'),log,killReason)
                                 self.rmIrcQueueFor(irc,mask)
                                 i.count(self.getDb(irc.network),pattern.uid)
@@ -1516,7 +1498,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                 if chan.patterns:
                     for pattern in chan.patterns:
                         if pattern in text:
-                            reason = 'matchs tmp pattern in %s' % channel
+                            reason = 'matches tmp pattern in %s' % channel
                             # redo duration
                             chan.patterns.enqueue(pattern)
                             break
@@ -1739,16 +1721,14 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                 self.logChannel(irc,"BOT: Wave in progress (%s/%ss), ignores lifted, triggers thresholds lowered for %ss at least" % (self.registryValue('reportPermit'),self.registryValue('reportLife'),self.registryValue('defcon'))) 
                                 # Todo changes channel modes
                                 i.defcon = time.time()
-                                if not i.god:
-                                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s +p' % irc.nick))
-                                else:
-                                    for channel in irc.state.channels:
-                                        if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
-                                            if not 'z' in irc.state.channels[channel].modes:
-                                                if irc.nick in list(irc.state.channels[channel].ops):
-                                                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
-                                                else:
-                                                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s +oqz %s $~a' % (channel,irc.nick)))
+                                for channel in irc.state.channels:
+                                    if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
+                                        if not 'z' in irc.state.channels[channel].modes:
+                                            if irc.nick in list(irc.state.channels[channel].ops):
+                                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
+                                            else:
+                                                irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG ChanServ OP %s' % channel))
+                                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz %s $~a' % (channel,irc.nick)))
                             i.defcon = time.time()
             else:
                 if i.netsplit and text.startswith('Join rate in '):
@@ -1795,8 +1775,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                         pattern = i.patterns[k]
                         if pattern.match(text):
                             if pattern.limit == 0:
-                                reason = 'matchs #%s in pm' % (pattern.uid)
-                                log = 'BAD: [%s] %s (matchs #%s) -> %s' % (channel,msg.prefix,pattern.uid,mask)
+                                reason = 'matches #%s in pm' % (pattern.uid)
+                                log = 'BAD: [%s] %s (matches #%s) -> %s' % (channel,msg.prefix,pattern.uid,mask)
                                 self.ban(irc,msg.nick,msg.prefix,mask,self.registryValue('klineDuration'),reason,self.registryValue('klineMessage'),log,killReason)
                                 i.count(self.getDb(irc.network),pattern.uid)
                                 break
@@ -1804,8 +1784,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                 queue = self.getIrcQueueFor(irc,mask,pattern.uid,pattern.life)
                                 queue.enqueue(text)
                                 if len(queue) > pattern.limit:
-                                    reason = 'matchs #%s (%s/%ss) in pm' % (pattern.uid,pattern.limit,pattern.life)
-                                    log = 'BAD: [%s] %s (matchs #%s %s/%ss) -> %s' % (channel,msg.prefix,pattern.uid,pattern.limit,pattern.life,mask)
+                                    reason = 'matches #%s (%s/%ss) in pm' % (pattern.uid,pattern.limit,pattern.life)
+                                    log = 'BAD: [%s] %s (matches #%s %s/%ss) -> %s' % (channel,msg.prefix,pattern.uid,pattern.limit,pattern.life,mask)
                                     self.ban(irc,msg.nick,msg.prefix,mask,self.registryValue('klineDuration'),reason,self.registryValue('klineMessage'),log,killReason)
                                     self.rmIrcQueueFor(irc,mask)
                                     i.count(self.getDb(irc.network),pattern.uid)
@@ -2264,13 +2244,11 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
             if not chan.called:
                 self.logChannel(irc,"INFO: [%s] ignores lifted, limits lowered due to %s abuses for %ss" % (channel,key,self.registryValue('abuseDuration',channel=channel))) 
                 if self.registryValue('defconMode',channel=channel):
-                    if not i.god:
-                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +p' % irc.nick))
-                    else:
-                        if irc.nick in list(irc.state.channels[channel].ops) and not 'z' in list(irc.state.channels[channel].modes):
-                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
-                        elif not 'z' in list(irc.state.channels[channel].modes):
-                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +oqz %s $~a' % (channel,irc.nick)))
+                    if irc.nick in list(irc.state.channels[channel].ops) and not 'z' in list(irc.state.channels[channel].modes):
+                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
+                    elif not 'z' in list(irc.state.channels[channel].modes):
+                        irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG ChanServ OP %s' % channel))
+                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz %s $~a' % (channel,irc.nick)))
             chan.called = time.time()
             return True
         return False
