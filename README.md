@@ -3,6 +3,10 @@
 A Limnoria's plugin to handle various spam and abuses with network hammer
 You must install python-dnspython.
 
+*This version of Sigyn has been modified to work with ChatIRCd (a modern fork of Charybdis) and for use with PyLink.  
+
+This plugin uses OMODE and OKICK for PyLink (remote) clients.  You will need to assign the appropriate privs to your ircd.conf oper privs.
+
 You must tweak default settings to fits your needs.
 
 ## Commands ##
