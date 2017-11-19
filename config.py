@@ -52,6 +52,9 @@ Sigyn = conf.registerPlugin('Sigyn')
 conf.registerGlobalValue(Sigyn, 'enable',
      registry.Boolean(False, """set to True to enable kill and klines, otherwise bot will only report to logChannel"""))
 
+conf.registerGlobalValue(Sigyn, 'mainChannel',
+     registry.String("#freenode","""main channel, where bot stay opped and op staffer on +z"""))
+
 conf.registerGlobalValue(Sigyn, 'snoopChannel',
      registry.String("", """channel where services stuff are announced"""))
 
@@ -103,8 +106,8 @@ conf.registerGlobalValue(Sigyn, 'saslDuration',
 conf.registerGlobalValue(Sigyn, 'saslMessage',
      registry.String("Banned due to too many failed login attempts in a short period, email kline@freenode.net when corrected. Thanks!", """dline message"""))
 
-conf.registerChannelValue(Sigyn, 'eirDuration',
-     registry.String("", """eir dnv duration"""))
+conf.registerChannelValue(Sigyn, 'lastActionTaken',
+     registry.Float(0.0, """store date of last action taken in a channel"""))
 
 conf.registerGlobalValue(Sigyn, 'announcePermit',
     registry.Integer(-1,"""number of announce permit in logChannel,if triggered the bot will stay quiet for alertPeriod, -1 to disable"""))
@@ -115,6 +118,12 @@ conf.registerGlobalValue(Sigyn, 'ipv4AbusePermit',
      registry.Integer(-1, """check /24 on ipv4 klines made by the bot, -1 to disable, if triggered, announce in logChannel"""))
 conf.registerGlobalValue(Sigyn, 'ipv4AbuseLife',
      registry.PositiveInteger(1, """life duration of those kline in seconds"""))
+
+# to fight some specific spambot
+conf.registerGlobalValue(Sigyn, 'channelCreationPermit',
+    registry.Integer(-1,"""-1 to disable, announce always, kline on defcon"""))
+conf.registerGlobalValue(Sigyn, 'channelCreationLife',
+     registry.PositiveInteger(60, """life of messages to keep"""))
 
 # dronebl submit
 conf.registerGlobalValue(Sigyn, 'droneblKey',
@@ -185,6 +194,12 @@ conf.registerGlobalValue(Sigyn, 'idPermit',
     registry.Integer(-1,"""number of snotes about id failure from a given user and different account"""))
 conf.registerGlobalValue(Sigyn, 'idLife',
     registry.PositiveInteger(1,"""life duration of message in those snote"""))
+
+conf.registerGlobalValue(Sigyn, 'registerPermit',
+    registry.Integer(-1,"""number of register allowed per ip during registerLife"""))
+conf.registerGlobalValue(Sigyn, 'registerLife',
+    registry.PositiveInteger(1,"""life of notices in seconds"""))
+
 
 #change mode on defcon
 conf.registerChannelValue(Sigyn, 'defconMode',

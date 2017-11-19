@@ -1,7 +1,7 @@
 # Sigyn #
 
 A Limnoria's plugin to handle various spam and abuses with network hammer
-You must install python-dnspython.
+You must install python-dnspython and python-ipaddress
 
 *This version of Sigyn has been modified to work with ChatIRCd (a modern fork of Charybdis) and for use with PyLink.  
 
