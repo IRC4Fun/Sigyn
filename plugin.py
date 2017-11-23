@@ -1066,7 +1066,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
         i = self.getIrc(irc)
         if not i.opered:
             i.opered = True
-            irc.queueMsg(ircmsgs.IrcMsg('MODE %s +p' % irc.nick))
+            irc.queueMsg(ircmsgs.IrcMsg('MODE %s +B' % irc.nick))
             irc.queueMsg(ircmsgs.IrcMsg('MODE %s +s +bnfl' % irc.nick))
             try:
                 # that way annouces messages are delayed, kill and kline are sent directly to the socket
@@ -1787,7 +1787,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                         if i.lastDefcon and time.time()-i.lastDefcon < self.registryValue('alertPeriod') and not i.defcon:
                             self.logChannel(irc,"INFO: ignores lifted and abuses end to klines for %ss due to abuses in %s after lastest defcon %s" % (self.registryValue('defcon')*2,channel,i.lastDefcon))
                             if not i.god:
-                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +p' % irc.nick))
+                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +B' % irc.nick))
                             else:
                                 for channel in irc.state.channels:
                                     if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
@@ -1859,7 +1859,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
         (targets, text) = msg.args
         nicks = ['OperServ']
         if msg.nick in nicks:
-            if text.startswith('klinechan_check_join(): klining '):
+            if text.startswith('akillchan_check_join(): AKILLing '):
                 patterns = self.registryValue('droneblPatterns')
                 found = False
                 if len(patterns):
@@ -1868,7 +1868,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                             found = True
                             break
                     if found:
-                        a = text.split('klinechan_check_join(): klining ')[1].split(' ')
+                        a = text.split('akillchan_check_join(): AKILLing ')[1].split(' ')
                         a = a[0]
                         ip = a.split('@')[1]
                         if utils.net.isIPV4(ip):
@@ -1878,7 +1878,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                 t.start()
                             else:
                                 self.prefixToMask(irc,'*!*@%s' % ip,'',True)
-            if text.startswith('REGISTER:BADEMAIL: '):
+            if text.startswith('REGISTER:BADMAIL: '):
                text = text.replace('\x02','')
                t = text.split(' ')
                account = t[1]
@@ -1908,8 +1908,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
         if msg.nick in nicks:
             i = self.getIrc(irc)
             queue = self.getIrcQueueFor(irc,self.registryValue('reportChannel'),'lethalPatterns',7)
-            if text.startswith('BAD:') and not '(tor' in text and '(' in text:
-                if msg.nick == 'topm-dnsbl':
+            if text.startswith('DNSBL ->'):
+                if msg.nick == 'OPM':
                     queue.enqueue(text)
                 permit = self.registryValue('reportPermit')
                 if permit > -1:
@@ -2323,7 +2323,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                    if not i.defcon:
                        self.logChannel(irc,"INFO: ignores lifted and abuses end to klines for %ss due to channel creation abuses" % self.registryValue('defcon'))
                        if not i.god:
-                           irc.sendMsg(ircmsgs.IrcMsg('MODE %s +p' % irc.nick))
+                           irc.sendMsg(ircmsgs.IrcMsg('MODE %s +B' % irc.nick))
                        else:
                            for channel in irc.state.channels:
                                if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
@@ -2373,7 +2373,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                     def rct():
                         i = self.getIrc(irc)
                         if 'services.' in i.limits:
-                            del i.limits['services.']
+                            del i.limits['IRC4Fun.net']
                     schedule.addEvent(rct,time.time()+self.registryValue('alertPeriod'))
             elif 'K-Line for [*@' in text:
                 reason = text.split('K-Line for [*@')[1]
@@ -3038,7 +3038,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                 if oldNick in chan.nicks:
                     chan.nicks[newNick] = chan.nicks[oldNick]
                     # todo check digit/hexa nicks too
-                    if not newNick.startswith('Guest'):
+                    if not newNick.startswith('User'):
                         if not isBanned:
                             reason = False
                             flag = ircdb.makeChannelCapability(channel, 'nick')
