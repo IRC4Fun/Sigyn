@@ -1539,8 +1539,11 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
             if value == '$~a' and op == irc.prefix:
                 if channel == self.registryValue('mainChannel'):
                     irc.sendMsg(ircmsgs.IrcMsg('MODE %s -qz $~a' % channel))
+                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s -qz $~a' % channel))
+
                 else:
-                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s -qzo $~a %s' % (channel,irc.nick)))
+                    irc.sendMsg(ircmsgs.IrcMsg('OMODE %s -qzo $~a %s' % (channel,irc.nick)))
+#                    irc.sendMsg(ircmsgs.IrcMsg('OMODE %s -qz $~a' % (channel)))
 
     def handleMsg (self,irc,msg,isNotice):
         if not ircutils.isUserHostmask(msg.prefix):
