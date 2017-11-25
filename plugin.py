@@ -513,7 +513,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                             if irc.nick in list(irc.state.channels[channel].ops):
                                 irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
                             else:
-                                irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +oqz :%s $~a' % (channel,irc.nick)))
+                                irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
+                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % (channel)))
         irc.replySuccess()
     defcon = wrap(defcon,['owner',optional('channel')])
 
@@ -1096,7 +1097,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                     if irc.nick in list(irc.state.channels[channel].ops):
                                         irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
                                     else:
-                                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +oqz %s $~a' % (channel,irc.nick)))
+                                        irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o %s' % (channel,irc.nick)))
+                                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % (channel)))
                 elif mode == '+B':
                     i.god = False
                     self.log.debug('%s is switching to mortal' % irc.nick)
@@ -1542,7 +1544,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                     irc.sendMsg(ircmsgs.IrcMsg('MODE %s -qz $~a' % channel))
 
                 else:
-                    irc.sendMsg(ircmsgs.IrcMsg('OMODE %s -qzo $~a %s' % (channel,irc.nick)))
+                    irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o %s' % (channel,irc.nick)))
+                    irc.sendMsg(ircmsgs.IrcMsg('MODE %s -qzo $~a %s' % (channel,irc.nick)))
 #                    irc.sendMsg(ircmsgs.IrcMsg('OMODE %s -qz $~a' % (channel)))
 
     def handleMsg (self,irc,msg,isNotice):
@@ -1798,7 +1801,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                             if irc.nick in list(irc.state.channels[channel].ops):
                                                 irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
                                             else:
-                                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +oqz %s $~a' % (channel,irc.nick)))
+                                                irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o %s' % (channel,irc.nick)))
+                                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % (channel)))
                             i.defcon = time.time() + self.registryValue('defcon')
 
                         ip = mask.split('@')[1]
@@ -1940,7 +1944,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                             if irc.nick in list(irc.state.channels[channel].ops):
                                                 irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
                                             else:
-                                                irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +oqz :%s $~a' % (channel,irc.nick)))
+                                                irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
+                                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % (channel)))
                             i.defcon = time.time()
             else:
                 if i.netsplit and text.startswith('Join rate in '):
@@ -2334,7 +2339,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                        if irc.nick in list(irc.state.channels[channel].ops):
                                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % channel))
                                        else:
-                                           irc.sendMsg(ircmsgs.IrcMsg('MODE %s +oqz %s $~a' % (channel,irc.nick)))
+                                           irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o %s' % (channel,irc.nick)))
+                                           irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % (channel)))
                    i.defcon = time.time()
                q.enqueue(','.join(msgs))
 
@@ -2494,8 +2500,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                         if irc.nick in list(irc.state.channels[channel].ops) and not 'z' in list(irc.state.channels[channel].modes):
                             irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
                         elif not 'z' in list(irc.state.channels[channel].modes):
+                            irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
                             irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
-                            irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +oqz :%s $~a' % (channel,irc.nick)))
             chan.called = time.time()
             return True
         return False
