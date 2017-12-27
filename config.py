@@ -61,6 +61,11 @@ conf.registerGlobalValue(Sigyn, 'snoopChannel',
 conf.registerGlobalValue(Sigyn, 'mxbl',
      registry.CommaSeparatedListOfStrings([''],"""patterns to match"""))
 
+conf.registerGlobalValue(Sigyn, 'wordsList',
+     registry.CommaSeparatedListOfStrings([''],"""paths of files contains one word per line"""))
+conf.registerGlobalValue(Sigyn, 'wordMinimum',
+    registry.PositiveInteger(4,"""minimum length of words to use for detection"""))
+
 conf.registerGlobalValue(Sigyn, 'logChannel',
      registry.String("", """channel where bot's actions is announced"""))
 conf.registerGlobalValue(Sigyn, 'useNotice',
@@ -108,6 +113,8 @@ conf.registerGlobalValue(Sigyn, 'saslMessage',
 
 conf.registerChannelValue(Sigyn, 'lastActionTaken',
      registry.Float(0.0, """store date of last action taken in a channel"""))
+conf.registerChannelValue(Sigyn, 'leaveChannelIfNoActivity',
+     registry.Integer(-1, """leave channel after days of inactivity, -1 to disable"""))
 
 conf.registerGlobalValue(Sigyn, 'announcePermit',
     registry.Integer(-1,"""number of announce permit in logChannel,if triggered the bot will stay quiet for alertPeriod, -1 to disable"""))
@@ -124,6 +131,8 @@ conf.registerGlobalValue(Sigyn, 'channelCreationPermit',
     registry.Integer(-1,"""-1 to disable, announce always, kline on defcon"""))
 conf.registerGlobalValue(Sigyn, 'channelCreationLife',
      registry.PositiveInteger(60, """life of messages to keep"""))
+conf.registerGlobalValue(Sigyn, 'lethalChannels',
+    registry.CommaSeparatedListOfStrings([''],"""patterns to match"""))
 
 # dronebl submit
 conf.registerGlobalValue(Sigyn, 'droneblKey',
@@ -282,24 +291,26 @@ conf.registerChannelValue(Sigyn, 'lowFloodLife',
     registry.PositiveInteger(1,"""life duration of message in the lowFlood buffer detection"""))
 
 conf.registerChannelValue(Sigyn, 'repeatPermit',
-    registry.Integer(-1,"""number of repeated messages allowed during repeatLife"""))
+    registry.Integer(-1,"""number of repeated trigger allowed during repeatLife, -1 to disable"""))
 conf.registerChannelValue(Sigyn, 'repeatLife',
     registry.PositiveInteger(1,"""life duration of message in the repeat buffer detection"""))
 conf.registerChannelValue(Sigyn, 'repeatPercent',
-    registry.Probability(1.00,"""percent of similarity between two messages to trigger repeat detection"""))
+    registry.Probability(1.00,"""percent of similarity between two pattern to trigger repeat detection"""))
 conf.registerChannelValue(Sigyn, 'repeatCount',
-    registry.PositiveInteger(1,"""if pattern is smaller than computedPattern, bot may still add it anyway, if larger than repeatPattern"""))
-conf.registerChannelValue(Sigyn, 'repeatPattern',
+    registry.PositiveInteger(1,"""if pattern is smaller than computedPattern, bot may still add it anyway, if occured more than repeatCount"""))
+conf.registerChannelValue(Sigyn, 'repeatMinimum',
     registry.PositiveInteger(1,"""minimal length of a pattern, in that case, the pattern must be repeated more than at least repeatCount in the message"""))
     
 conf.registerChannelValue(Sigyn, 'lowRepeatPermit',
-    registry.Integer(-1,"""number of repeated messages allowed during repeatLife"""))
+    registry.Integer(-1,"""number of repeated messages allowed during lowrepeatLife, -1 to disable"""))
 conf.registerChannelValue(Sigyn, 'lowRepeatLife',
-    registry.PositiveInteger(1,"""life duration of message in the repeat buffer detection"""))
+    registry.PositiveInteger(1,"""life duration of message in the lowrepeat buffer detection"""))
 conf.registerChannelValue(Sigyn, 'lowRepeatPercent',
-    registry.Probability(1.00,"""percent of similarity between two messages to trigger repeat detection"""))
+    registry.Probability(1.00,"""percent of similarity between two messages to trigger lowrepeat detection"""))
+conf.registerChannelValue(Sigyn, 'lowRepeatCount',
+    registry.PositiveInteger(1,"""keep this value to 1, this settings only exist because repeat and lowrepeat use nearly the same code"""))
 conf.registerChannelValue(Sigyn, 'lowRepeatMinimum',
-    registry.PositiveInteger(1,"""minimun number of chars to enter massRepeat detection"""))
+    registry.PositiveInteger(1,"""minimun number of chars to enter lowRepeat detection"""))
 
 conf.registerChannelValue(Sigyn, 'massRepeatPermit',
     registry.Integer(-1,"""number of mass repeat permit duration massRepeatLife, -1 to disable"""))
