@@ -1302,7 +1302,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
         i = self.getIrc(irc)
         if not i.opered:
             i.opered = True
-            irc.queueMsg(ircmsgs.IrcMsg('MODE %s +B' % irc.nick))
+            irc.queueMsg(ircmsgs.IrcMsg('MODE %s +p' % irc.nick))
             irc.queueMsg(ircmsgs.IrcMsg('MODE %s +s +bnfl' % irc.nick))
             try:
                 # that way annouces messages are delayed, kill and kline are sent directly to the socket
@@ -1321,7 +1321,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                     i.opered = False
                     if len(self.registryValue('operatorNick')) and len(self.registryValue('operatorPassword')):
                         irc.queueMsg(ircmsgs.IrcMsg('OPER %s %s' % (self.registryValue('operatorNick'),self.registryValue('operatorPassword'))))
-                elif mode == '-B':
+                elif mode == '-p':
                     i.god = True
                     self.log.debug('%s is switching to god' % irc.nick)
                     for channel in irc.state.channels:
@@ -1334,7 +1334,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                     else:
                                         irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o %s' % (channel,irc.nick)))
                                         irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz $~a' % (channel)))
-                elif mode == '+B':
+                elif mode == '+p':
                     i.god = False
                     self.log.debug('%s is switching to mortal' % irc.nick)
         elif target in irc.state.channels and 'm' in irc.state.channels[target].modes:
@@ -2183,7 +2183,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                         if i.lastDefcon and time.time()-i.lastDefcon < self.registryValue('alertPeriod') and not i.defcon:
                             self.logChannel(irc,"INFO: ignores lifted and abuses end to klines for %ss due to abuses in %s after lastest defcon %s" % (self.registryValue('defcon')*2,channel,i.lastDefcon))
                             if not i.god:
-                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +B' % irc.nick))
+                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +p' % irc.nick))
                             else:
                                 for channel in irc.state.channels:
                                     if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
