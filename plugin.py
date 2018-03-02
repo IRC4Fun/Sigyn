@@ -1462,7 +1462,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                 if pending[1] in i.klines:
                     del i.klines[pending[1]]
                 return
-            irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG v :+sigynbvab %s!*@* *!%s' % (pending[3],mask)))
+            irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG v :+sigynbvab *!%s' % (mask)))
             irc.sendMsg(ircmsgs.IrcMsg('KLINE %s %s :%s|%s' % (pending[2],mask,pending[4],pending[3])))
             for channel in irc.state.channels:
                 chan = self.getChan(irc,channel)
