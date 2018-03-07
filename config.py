@@ -73,17 +73,17 @@ conf.registerGlobalValue(Sigyn, 'logChannel',
      registry.String("", """channel where bot's actions is announced"""))
 conf.registerGlobalValue(Sigyn, 'useNotice',
      registry.Boolean(False, """use notices for announces in logChannel"""))
-     
+
 conf.registerGlobalValue(Sigyn,'resolverTimeout',
     registry.PositiveInteger(3, """max duration of dns request/resolve in seconds"""))
-     
+
 conf.registerGlobalValue(Sigyn, 'klineDuration',
      registry.Integer(-1, """kline duration, in minutes, with -1, bot will not kill or kline"""))
 conf.registerGlobalValue(Sigyn, 'klineMessage',
      registry.String("Please do not spam users or channels on freenode. If in error, please contact kline@freenode.net.", """default reason used in kline's message"""))
 conf.registerChannelValue(Sigyn, 'killMessage',
      registry.String("Spam is off topic on freenode.", """kill reason"""))
-     
+
 conf.registerGlobalValue(Sigyn, 'operatorNick',
      registry.String("", """oper's nick, must be filled""", private=True))
 conf.registerGlobalValue(Sigyn, 'operatorPassword',
@@ -137,6 +137,9 @@ conf.registerGlobalValue(Sigyn, 'ipv4AbuseLife',
 conf.registerGlobalValue(Sigyn, 'useWhoWas',
      registry.Boolean(False, """use whowas for resolving ip"""))
 
+conf.registerGlobalValue(Sigyn, 'useOperServ',
+     registry.Boolean(False, """use OperServ AKILL instead of KLINE"""))
+
 conf.registerGlobalValue(Sigyn,'msgInviteConfirm',
      registry.String("Your request has been submitted to freenode staff.","""sent to op who requested /invite"""))
 
@@ -144,7 +147,7 @@ conf.registerGlobalValue(Sigyn,'msgTooManyGhost',
      registry.String("Banned due to too many connections in a short period, email kline@freenode.net when corrected.","""sent to op who requested /invite"""))
 
 conf.registerGlobalValue(Sigyn,'staffCloak',
-     registry.String("freenode/staff","""used to identify staffers"""))
+     registry.String("IRC4Fun/staff/","""used to identify staffers"""))
 
 # to fight some specific spambot
 conf.registerGlobalValue(Sigyn, 'channelCreationPermit',
@@ -167,7 +170,7 @@ conf.registerGlobalValue(Sigyn, 'secretChannel',
 # report
 conf.registerGlobalValue(Sigyn, 'reportChannel',
     registry.String("","""channel of the instance"""))
-conf.registerGlobalValue(Sigyn, 'reportNicks',                                                                                                                                                                                      
+conf.registerGlobalValue(Sigyn, 'reportNicks',
     registry.CommaSeparatedListOfStrings([''],"""bots nicks"""))
 conf.registerGlobalValue(Sigyn, 'reportPermit',
     registry.Integer(-1,"""number of proxy detected, -1 to disable"""))
@@ -186,7 +189,7 @@ conf.registerGlobalValue(Sigyn, 'amsgLife',
 conf.registerGlobalValue(Sigyn, 'amsgPercent',
     registry.Probability(1.00,"""percent of similarity between two messages"""))
 
-# service notices 
+# service notices
 
 # user nick changes snote
 conf.registerGlobalValue(Sigyn, 'nickChangePermit',
@@ -259,7 +262,7 @@ conf.registerChannelValue(Sigyn, 'abuseLife',
     registry.PositiveInteger(1,"""life duration of message in the buffer detection, in seconds"""))
 conf.registerChannelValue(Sigyn, 'abuseDuration',
     registry.PositiveInteger(1,"""duration in seconds of abuse state"""))
-    
+
 # ignored users can still trigger klines if desired
 conf.registerChannelValue(Sigyn, 'bypassIgnorePermit',
     registry.Integer(-1,"""number of triggers allowed while ignored, -1 to disable"""))
@@ -294,7 +297,7 @@ conf.registerChannelValue(Sigyn, 'massJoinPercent',
     registry.Probability(1.00,"""percent of similarity between two pattern ( for nicks and gecos )"""))
 conf.registerChannelValue(Sigyn, 'massJoinMinimum',
     registry.PositiveInteger(1,"""length of pattern to match as least"""))
-    
+
 conf.registerChannelValue(Sigyn, 'massJoinTakeAction',
      registry.Boolean(False, """takes actions against massJoin found hosts/gecos/nicks"""))
 
@@ -320,7 +323,7 @@ conf.registerChannelValue(Sigyn, 'repeatCount',
     registry.PositiveInteger(1,"""if pattern is smaller than computedPattern, bot may still add it anyway, if occured more than repeatCount"""))
 conf.registerChannelValue(Sigyn, 'repeatMinimum',
     registry.PositiveInteger(1,"""minimal length of a pattern, in that case, the pattern must be repeated more than at least repeatCount in the message"""))
-    
+
 conf.registerChannelValue(Sigyn, 'lowRepeatPermit',
     registry.Integer(-1,"""number of repeated messages allowed during lowrepeatLife, -1 to disable"""))
 conf.registerChannelValue(Sigyn, 'lowRepeatLife',
@@ -369,7 +372,7 @@ conf.registerChannelValue(Sigyn, 'hilightPermit',
     registry.Integer(-1,"""number of hilight detection allowed during hilightLife, -1 to disable"""))
 conf.registerChannelValue(Sigyn, 'hilightLife',
     registry.PositiveInteger(1,"""life duration of hilight buffer"""))
-    
+
 conf.registerChannelValue(Sigyn, 'lowHilightNick',
     registry.Integer(-1,"""number nick allowed per message, -1 to disable"""))
 conf.registerChannelValue(Sigyn, 'lowHilightPermit',
