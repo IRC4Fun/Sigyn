@@ -3645,7 +3645,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                     if i.defcon:
                                         klinereason = '%s !dnsbl' % reason
                                     self.kline(irc,msg.prefix,mask,self.registryValue('klineDuration'),klinereason)
-                                    self.logChannel(irc,'BAD: [%s] %s (%s) - %s)' % (channel,msg.prefix,reasonuid))
+                                    self.logChannel(irc,'BAD: [%s] %s (%s) - %s)' % (channel,msg.prefix,reason,uid))
                                     isBanned = True
                                     chan.buffers[kind][key].reset()
                                     continue
