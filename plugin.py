@@ -2379,12 +2379,11 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                             i.defcon = time.time()
                             for channel in irc.state.channels:
                                 if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
-                                    if not 'z' in irc.state.channels[channel].modes:
-                                        if irc.nick in list(irc.state.channels[channel].ops):
-                                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
-                                        else:
-                                            irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
-                                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % (channel)))
+                                    if irc.nick in list(irc.state.channels[channel].ops):
+                                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
+                                    else:
+                                        irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
+                                        irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % (channel)))
                         i.defcon = time.time()
             else:
                 if i.netsplit and text.startswith('Join rate in '):
