@@ -2371,36 +2371,21 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                 if permit > -1:
                     life = self.registryValue('reportLife')
                     queue = self.getIrcQueueFor(irc,'report','bad',life)
-                    target = text.split('(')[0]
-                    if len(text.split(' ')) > 1:
-                        target = text.split(' ')[1]
-                    if self.collecting:
-                        (nick,ident,host) = ircutils.splitHostmask(target)
-                        if nick in self.collect:
-                            self.collect[nick] = self.collect[nick] + 1
-                        else:
-                            self.collect[nick] = 1
-                    found = False
-                    for q in queue:
-                        if q == target:
-                            found = True
-                            break
-                    if not found:
-                        queue.enqueue(target)
-                        if len(queue) > permit:
-                            queue.reset()
-                            if not i.defcon:
-                                self.logChannel(irc,"BOT: Wave in progress (%s/%ss), ignores lifted, triggers thresholds lowered for %ss at least" % (self.registryValue('reportPermit'),self.registryValue('reportLife'),self.registryValue('defcon')))
-                                i.defcon = time.time()
-                                for channel in irc.state.channels:
-                                    if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
-                                        if not 'z' in irc.state.channels[channel].modes:
-                                            if irc.nick in list(irc.state.channels[channel].ops):
-                                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
-                                            else:
-                                                irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
-                                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % (channel)))
+                    queue.enqueue(text)
+                    if len(queue) > permit:
+                        queue.reset()
+                        if not i.defcon:
+                            self.logChannel(irc,"BOT: Wave in progress (%s/%ss), ignores lifted, triggers thresholds lowered for %ss at least" % (self.registryValue('reportPermit'),self.registryValue('reportLife'),self.registryValue('defcon')))
                             i.defcon = time.time()
+                            for channel in irc.state.channels:
+                                if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
+                                    if not 'z' in irc.state.channels[channel].modes:
+                                        if irc.nick in list(irc.state.channels[channel].ops):
+                                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
+                                        else:
+                                            irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
+                                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % (channel)))
+                        i.defcon = time.time()
             else:
                 if i.netsplit and text.startswith('Join rate in '):
                     i.netsplit = time.time() + self.registryValue('netsplitDuration')
