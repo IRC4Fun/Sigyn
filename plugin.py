@@ -2178,7 +2178,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                             isBanned = True
                             uid = random.randint(0,1000000)
                             reason = '%s %s' % (reason,bypassIgnore)
-                            log = 'BAD: [%s] %s (%s - %s)' % (channel,msg.prefix,reason,mask,uid)
+                            log = 'BAD: [%s] %s (%s - %s)' % (channel,msg.prefix,reason,uid)
                             chan.klines.enqueue('%s %s' % (msg.nick.lower(),mask))
                             reason = '%s - %s' % (uid,reason)
                             self.ban(irc,msg.nick,msg.prefix,mask,self.registryValue('klineDuration'),reason,self.registryValue('klineMessage'),log,killReason)
@@ -2318,12 +2318,12 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                pattern = r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
                result = re.search(pattern,text)
                email = text.split('<')[1].split('>')[0]
+               h = text.split('email for ')[1].split(']')[0].strip().replace('[','!')
                if i.defcon:
                    nick = text.split('email for ')[1].split('[')[0]
                    u = email.split('@')[0]
                    d = email.split('@')[1].replace('.com','')
                    if nick == d and nick == u:
-                        h = text.split('email for ')[1].split(']')[0].strip().replace('[','!')
                         m = self.prefixToMask(irc,h)
                         uid = random.randint(0,1000000)
                         self.ban(irc,nick,h,m,self.registryValue('klineDuration'),'%s - register %s@%s.com' % (uid,nick,nick),self.registryValue('klineMessage'),'BAD: %s register %s@%s.com - %s' % (h,nick,nick,uid))
@@ -2336,7 +2336,12 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                            ms = []
                            for m in q:
                                ms.append(m)
-                           self.logChannel(irc,'SERVICE: %s registered loads of accounts %s' % (ip,', '.join(ms)))
+                           if i.defcon:
+                               uid = random.randint(0,1000000)
+                               m = self.prefixToMask(irc,h)
+                               self.ban(irc,nick,h,m,self.registryValue('klineDuration'),'%s - services load with %s' % (uid,','.join(ms)),self.registryValue('klineMessage'),'BAD: %s (registered load of accounts - %s)' % (h,uid))
+                           else:
+                               self.logChannel(irc,'SERVICE: %s load of accounts %s' % (h,', '.join(ms)))
                if 'type register to' in text:
                    q = self.getIrcQueueFor(irc,email,'register',self.registryValue('registerLife'))
                    text = text.replace('email for ','')
@@ -3629,7 +3634,7 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                                     if i.defcon:
                                         klinereason = '%s !dnsbl' % reason
                                     self.kline(irc,msg.prefix,mask,self.registryValue('klineDuration'),klinereason)
-                                    self.logChannel(irc,'BAD: [%s] %s (%s) - %s)' % (channel,msg.prefix,reason,uid))
+                                    self.logChannel(irc,'BAD: [%s] %s (%s - %s)' % (channel,msg.prefix,reason,uid))
                                     isBanned = True
                                     chan.buffers[kind][key].reset()
                                     continue
