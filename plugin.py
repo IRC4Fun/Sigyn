@@ -618,12 +618,11 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                 # todo check current bot's umode
                 for channel in irc.state.channels:
                     if irc.isChannel(channel) and self.registryValue('defconMode',channel=channel):
-                        if not 'z' in irc.state.channels[channel].modes:
-                            if irc.nick in list(irc.state.channels[channel].ops):
-                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
-                            else:
-                                irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
-                                irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % (channel)))
+                        if irc.nick in list(irc.state.channels[channel].ops):
+                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % channel))
+                        else:
+                            irc.sendMsg(ircmsgs.IrcMsg('OMODE %s +o :%s' % (channel,irc.nick)))
+                            irc.sendMsg(ircmsgs.IrcMsg('MODE %s +qz :$~a' % (channel)))
         irc.replySuccess()
     defcon = wrap(defcon,['owner',optional('channel')])
 
@@ -1448,8 +1447,6 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
             return
         if not reason:
             reason = self.registryValue('killMessage')
-        if '|' in nick:
-            irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG v :+sigynbvab %s*!*@* %s*!*@*' % (nick,nick)))
         if not '|' in nick:
             irc.sendMsg(ircmsgs.IrcMsg('KILL %s :%s' % (nick,reason)))
 
@@ -1477,10 +1474,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
             self.log.info('KLINE %s|%s' % (mask,pending[3]))
             if self.registryValue('useOperServ'):
                 irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG OperServ :ADD %s !T %s %s' % (mask,pending[2],pending[3])))
-                irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG v :+sigynbvab %s!*@* *!%s' % (pending[3],mask)))
             else:
                 irc.sendMsg(ircmsgs.IrcMsg('KLINE %s %s :%s|%s' % (pending[2],mask,pending[4],pending[3])))
-                irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG v :+sigynbvab %s!*@* *!%s' % (pending[3],mask)))
             for channel in irc.state.channels:
                 chan = self.getChan(irc,channel)
                 if len(chan.klines):
@@ -1519,10 +1514,8 @@ class Sigyn(callbacks.Plugin,plugins.ChannelDBHandler):
                 self.log.info('KLINE %s|%s' % (mask,reason))
                 if self.registryValue('useOperServ'):
                     irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG OperServ :ADD %s !T %s %s' % (mask,duration,reason)))
-                    irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG v :+sigynbvab *!*%s *!%s' % (mask,mask)))
                 else:
                     irc.sendMsg(ircmsgs.IrcMsg('KLINE %s %s :%s|%s' % (duration,mask,klineMessage,reason)))
-                    irc.sendMsg(ircmsgs.IrcMsg('PRIVMSG v :+sigynbvab *!*%s *!%s' % (mask,mask)))
                 if i.defcon:
                     i.defcon = time.time()
         elif ircutils.isUserHostmask(prefix):
